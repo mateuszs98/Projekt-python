@@ -221,3 +221,62 @@ class Board:  #plansza gry
                 self.field[i][j].blocked = True
 
         return True
+    def drawShipsAlien(self, currentAlienShip):  #rysowanie statków przeciwnika
+        if not isinstance(currentAlienShip, AlienShip):
+            raise MyException("Bledna instancja w funkcji drawShipAlien")
+        if (self.checkBoundaries(currentAlienShip, True) == True):
+            if (currentAlienShip.setHorizontal == True):
+                for i in range(currentAlienShip.length):
+                    self.field[currentAlienShip.x + i][currentAlienShip.y].changeColor((173,234,234))
+                    self.field[currentAlienShip.x + i][currentAlienShip.y].shootAlienShip = True
+                    self.field[currentAlienShip.x + i][currentAlienShip.y].howLongShip = currentAlienShip.length
+                self.appendToArray(currentAlienShip, True)
+            else:
+                for i in range(0, currentAlienShip.length):
+                    self.field[currentAlienShip.x][currentAlienShip.y + i].changeColor((173,234,234))
+                    self.field[currentAlienShip.x][currentAlienShip.y + i].shootAlienShip = True
+                    self.field[currentAlienShip.x][currentAlienShip.y + i].howLongShip = currentAlienShip.length
+                self.appendToArray(currentAlienShip, False)
+            return True
+        else:
+            return False
+
+    def getShiplength(self,x,y):   #dlugosc statku
+        return self.field[x][y].howLongShip
+
+    def changeColorFieldonGrey(self,mx,my):  #zmiana koloru pola do zatopionego statku
+        self.field[mx][my].changeColor((47,79,79))
+
+    def checkPosition(self,x,y, list):  #sprawdzanie pozycji
+        xx, yy, height, width = list
+        for i in range (0, width):
+            for j in range(0, height):
+                if (xx + i == x and yy + j == y):
+                    return True
+        return False
+
+    def changeColorShipOnGrey(self, list):  #statek zatopiony - kolor szary
+        xx, yy, height, width = list
+        for i in range (0, width):
+            for j in range(0, height):
+                self.changeColorFieldonGrey(xx + i, yy + j)
+
+    def appendToArray(self, currentAlienShip, horizontal):  #ustawianie statków
+        self.rememberPosOfOne = []
+        self.rememberPosOfOne.append(currentAlienShip.x)
+        self.rememberPosOfOne.append(currentAlienShip.y)
+
+        if (horizontal == True):
+            self.rememberPosOfOne.append(1)
+            self.rememberPosOfOne.append(currentAlienShip.length)
+        else:
+            self.rememberPosOfOne.append(currentAlienShip.length)
+            self.rememberPosOfOne.append(1)
+
+        self.rememberPositionOfShip.append(self.rememberPosOfOne)
+
+    def showAllShips(self):   #pokazywanie statków przeciwnika
+        for i in range(self.maxSize):
+            for j in range(self.maxSize):
+                if(self.field[i][j].shootAlienShip == True and self.field[i][j].shootAgain == False):
+                    self.field[i][j].changeColor((191, 191, 191))

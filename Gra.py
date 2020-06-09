@@ -59,3 +59,19 @@ class Battle(Window):
 
             pygame.display.update()
 
+   def button(self, color, text, x, y, width, height, action=None):  #funkcja przycisku
+        mouse = pygame.mouse.get_pos()
+        click = pygame.mouse.get_pressed()
+        if (x <= mouse[0] <= x + width and y <= mouse[1] <= y + height):
+            pygame.draw.rect(self.screen, color, (x, y, width, height))
+            if (click[0] == 1 and action != None):
+                if (action == "START"):
+                    self.loop()
+                elif (action == "KONIEC"):
+                    pygame.quit()
+                    quit()
+
+        smallText = pygame.font.SysFont('Arial', 40)
+        textSurf, textRect = self.textObjects1(text, smallText)
+        textRect.center = (x + 75, y + 45)
+        self.screen.blit(textSurf, textRect)

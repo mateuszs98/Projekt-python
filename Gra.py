@@ -1,4 +1,5 @@
 from Interfejs import *
+
 class Battle(Window):
     counter = 0
     pygame.init()
@@ -75,3 +76,25 @@ class Battle(Window):
         textSurf, textRect = self.textObjects1(text, smallText)
         textRect.center = (x + 75, y + 45)
         self.screen.blit(textSurf, textRect)
+        
+    def textObjects(self, text, font):   #tekst czarny
+        textSurface = font.render(text, True, (0, 0, 0))
+        return textSurface, textSurface.get_rect()
+
+    def textObjects1(self, text, font):  # tekst szarawy
+        textSurface = font.render(text, True, (170, 187, 204))
+        return textSurface, textSurface.get_rect()
+
+    def textObjects2(self, text, font):  # tekst szarawy, pogrubiony
+        textSurface = font.render(text, True, (170, 187, 204), 'bold')
+        return textSurface, textSurface.get_rect()
+
+class Alien:  #gracz 2 czyli komputer
+    def __init__(self):
+        self.active = False
+        self.temp = []
+        self.counter = 0
+        self.flag = False
+        self.choosed = False
+        self.temp1 = []
+        self.previousFields = []

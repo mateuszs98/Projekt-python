@@ -76,7 +76,7 @@ class Battle(Window):
         textSurf, textRect = self.textObjects1(text, smallText)
         textRect.center = (x + 75, y + 45)
         self.screen.blit(textSurf, textRect)
-        
+
     def textObjects(self, text, font):   #tekst czarny
         textSurface = font.render(text, True, (0, 0, 0))
         return textSurface, textSurface.get_rect()
@@ -88,6 +88,78 @@ class Battle(Window):
     def textObjects2(self, text, font):  # tekst szarawy, pogrubiony
         textSurface = font.render(text, True, (170, 187, 204), 'bold')
         return textSurface, textSurface.get_rect()
+    
+ def checkCounter(self, Board1, Board2):  #licznik dla obu plansz
+        if not isinstance(Board1, Board):
+            raise MyException("Bledna instancja w funkcji checkCounter")
+        if not isinstance(Board2, Board):
+            raise MyException("Bledna instancja w funkcji checkCounter")
+
+        if (Board2.counterOfshootFields == 20):
+            self.drawStartButton("WYGRANA", 700, 550, 200, 70)
+            return True
+        elif (Board1.counterOfshootFields == 20):
+            self.drawStartButton("PRZEGRANA", 700, 550, 200, 70)
+            return True
+        else:
+            return False
+
+    def drawStartButton(self, status, x, y, width, heigth):   #przycisk start/reset w grze
+        pygame.draw.rect(self.screen, (173,234,234), (x, y, width, heigth))
+        smallText = pygame.font.SysFont('Arial', 40)
+        textSurf, textRect = self.textObjects(status, smallText)
+        if (x < 600):
+            textRect.center = (x + 75, y + 35)
+        else:
+            textRect.center = (x + 100, y + 30)
+        self.screen.blit(textSurf, textRect)
+
+    def draw(self, screen):  # ekran podczas gry
+        BackGround = Background('tlo.png', [0, 0])
+        #screen.fill((0, 0, 1))
+        screen.fill([255, 255, 255])
+        screen.blit(BackGround.image, BackGround.rect)
+        self.mainBoard.drawBoard(screen)
+        self.alienBoard.drawBoard(screen)
+        if (self.setReset == False):
+            self.drawStartButton("  START", 50, 550, 175, 70)
+        else:
+            self.drawStartButton("   RESTART", 50, 550, 175, 70)
+
+    def drawAlocatedShips(self):  # rysowanie naszych statków
+        if (Battle.counter < 10):
+            if (Battle.counter == 0):
+
+                self.alocated[0] = False
+                self.alocated[1] = True
+
+                if (self.mainBoard.drawShip(self.ships[Battle.counter]) == False):
+                    Battle.counter -= 1
+            if (Battle.counter > 0 and Battle.counter < 3):
+                self.alocated[1] = False
+                self.alocated[2] = True
+                if (self.mainBoard.drawShip(self.ships[Battle.counter]) == False):
+                    Battle.counter -= 1
+            if (Battle.counter >= 3 and Battle.counter <= 5):
+                self.alocated[2] = False
+                self.alocated[3] = True
+                if (self.mainBoard.drawShip(self.ships[Battle.counter]) == False):
+                    Battle.counter -= 1
+            if (Battle.counter > 5 and Battle.counter <= 9):
+                self.alocated[3] = True
+                if (self.mainBoard.drawShip(self.ships[Battle.counter]) == False):
+                    Battle.counter -= 1
+
+    def drawAlienShips(self):  #rysowanie statków przeciwnika i ustawianie kolor takiego jak planszy
+        for i in range(len(self.shipsAlien)):
+            flag = True
+            while (flag == True):
+                if (self.alienBoard.drawShipsAlien(self.shipsAlien[i]) == False):
+                    flag = True
+                    self.shipsAlien[i].x = random.randint(0, 9)
+                    self.shipsAlien[i].y = random.randint(0, 9)
+                else:
+                    flag = False
 
 class Alien:  #gracz 2 czyli komputer
     def __init__(self):

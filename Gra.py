@@ -88,7 +88,7 @@ class Battle(Window):
     def textObjects2(self, text, font):  # tekst szarawy, pogrubiony
         textSurface = font.render(text, True, (170, 187, 204), 'bold')
         return textSurface, textSurface.get_rect()
-    
+
  def checkCounter(self, Board1, Board2):  #licznik dla obu plansz
         if not isinstance(Board1, Board):
             raise MyException("Bledna instancja w funkcji checkCounter")
@@ -160,6 +160,100 @@ class Battle(Window):
                     self.shipsAlien[i].y = random.randint(0, 9)
                 else:
                     flag = False
+
+    def loop(self):  #główna pętla gry
+        if (self.yourTurn == 0):
+            self.yourTurn = True
+        else:
+            self.yourTurn = False
+
+        done = False
+
+        while not done:
+            mx, my = pygame.mouse.get_pos()
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    done = True
+                    pygame.quit()
+                    quit()
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                    self.again = False
+                    self.resetAll()
+                    done = True
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_h:
+                    self.alienBoard.showAllShips()
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE and self.finish == False:
+                    if (self.ships[Battle.counter].setHorizontal == True):
+                        self.ships[Battle.counter].drawShipVertical(self.screen)
+                    else:
+                        self.ships[Battle.counter].drawShipHorizontal(self.screen)
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if (self.alien.active == True and self.yourTurn == True and self.endOfGame == False):
+                        if (self.alienBoard.changeColorField(mx, my) == True):
+                            self.yourTurn = False
+                            if (self.alienBoard.saveColor == (255, 0, 0)):
+
+                                positionmx = (mx - self.widthAlienTable) // Field.size
+                                positionmy = (my) // Field.size
+                                self.previousFields.append(tuple((positionmx, positionmy)))
+
+                                for i in range(0, len(self.helpArray)):
+                                    if (self.alienBoard.checkPosition(positionmx, positionmy,
+                                                                      self.helpArray[i]) == True):
+                                        counter = 0
+                                        # self.counterforme = 0
+                                        xx, yy, width, height = self.helpArray[i]
+                                        if width > height:
+                                            maxcounter = width
+                                        else:
+                                            maxcounter = height
+                                        for pos in self.previousFields:
+                                            if self.alienBoard.checkPosition(pos[0], pos[1], self.helpArray[i]):
+                                                counter += 1
+                                        if counter == maxcounter:
+                                            self.alienBoard.changeColorShipOnGrey(self.helpArray[i])
+                                        break
+
+                    if (50 <= mx <= 50 + 150 and 550 <= my <= 550 + 70):
+                        if (self.setReset == True):
+                            self.again = True
+                            self.resetAll()
+                            self.setReset = True
+                        elif (self.setReset == False and Battle.counter >= 10):
+                            self.drawAlienShips()
+                            self.helpArray = self.alienBoard.rememberPositionOfShip
+                            self.table = self.alien.tableToShoot()
+                            self.alien.active = True
+                            self.setReset = True
+
+                    self.drawAlocatedShips()
+                    Battle.counter += 1
+            if (Battle.counter < 10):
+                self.setReset = True
+            if (Battle.counter >= 10 and self.alien.active == False):
+                self.setReset = False
+
+            # rysowanie tablic do gry
+            self.draw(self.screen)
+
+            if (self.yourTurn == False and self.alien.active == True and self.endOfGame == False):
+                self.alien.shoot(self.table, self.mainBoard)
+                self.yourTurn = True
+
+            if (self.checkCounter(self.mainBoard, self.alienBoard) == True):
+                self.endOfGame = True
+
+            # typ statku ktory pojawi sie przy kursorze
+            if (Battle.counter < 10):
+                for i in range(len(self.alocated)):
+                    if (self.alocated[i] == True):
+                        self.ships[Battle.counter].setPosition(mx, my, self.screen)
+            else:
+                self.finish = True
+
+            pygame.display.flip()
+            pygame.display.update()
 
 class Alien:  #gracz 2 czyli komputer
     def __init__(self):

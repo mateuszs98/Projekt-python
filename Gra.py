@@ -60,7 +60,8 @@ class Battle(Window):
 
             pygame.display.update()
 
-   def button(self, color, text, x, y, width, height, action=None):  #funkcja przycisku
+
+    def button(self, color, text, x, y, width, height, action=None):  #funkcja przycisku
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
         if (x <= mouse[0] <= x + width and y <= mouse[1] <= y + height):
@@ -89,7 +90,7 @@ class Battle(Window):
         textSurface = font.render(text, True, (170, 187, 204), 'bold')
         return textSurface, textSurface.get_rect()
 
- def checkCounter(self, Board1, Board2):  #licznik dla obu plansz
+    def checkCounter(self, Board1, Board2):  #licznik dla obu plansz
         if not isinstance(Board1, Board):
             raise MyException("Bledna instancja w funkcji checkCounter")
         if not isinstance(Board2, Board):
@@ -264,102 +265,102 @@ class Alien:  #gracz 2 czyli komputer
         self.choosed = False
         self.temp1 = []
         self.previousFields = []
+    def shoot(self, table, boardAlien):   #oddawanie strzału RANDOM
 
-        def shoot(self, table, boardAlien):  # oddawanie strzału RANDOM
+        if not isinstance(boardAlien, Board):
+            raise MyException("Valid instance of Board")
 
-            if not isinstance(boardAlien, Board):
-                raise MyException("Valid instance of Board")
-
-            if (len(table) != 0):  # wybor bokow do sprawdzenia z tabeli tymczasowej
-                if (len(self.temp) != 0):
-                    x, y = random.choice(self.temp)
-                    if (x, y) in table:
-                        table.remove((x, y))
-                elif (len(self.temp) == 0 and self.choosed == True):  # jeśli nic nie ma w tablicy sprawdza drugi bok
-                    self.checkOtherSide(self.rememberX, self.rememberY, table, self.temp1)
-                    if (len(self.temp1) != 0):  # jesli nie ma już drugiego boku to sprawdza z pierwszej tabeli
-                        x, y = random.choice(self.temp1)
-                        if (x, y) in table:
-                            table.remove((x, y))
-                    else:
-                        x, y = random.choice(table)
-                        if (x, y) in table:
-                            table.remove((x, y))
-                        self.flag = False
-                        self.choosed = False
-                    self.choosed = False
+        if (len(table) != 0 ): #wybor bokow do sprawdzenia z tabeli tymczasowej
+            if (len(self.temp) != 0):
+                x,y = random.choice(self.temp)
+                if (x, y) in table:
+                    table.remove((x, y))
+            elif(len(self.temp) == 0 and self.choosed == True):   #jeśli nic nie ma w tablicy sprawdza drugi bok
+                self.checkOtherSide(self.rememberX, self.rememberY, table, self.temp1)
+                if(len(self.temp1) != 0):   #jesli nie ma już drugiego boku to sprawdza z pierwszej tabeli
+                    x, y = random.choice(self.temp1)
+                    if(x,y) in table:
+                        table.remove((x,y))
                 else:
                     x, y = random.choice(table)
                     if (x, y) in table:
                         table.remove((x, y))
                     self.flag = False
                     self.choosed = False
-                if (boardAlien.changeColorFieldbyAlien(x, y) == True):  # trafienie przez przeciwnika
-                    self.counter += 1
-                    self.previousFields.append(tuple((x, y)))
+                self.choosed = False
+            else:
+                x,y = random.choice(table)
+                if (x, y) in table:
+                    table.remove((x, y))
+                self.flag = False
+                self.choosed = False
+            if (boardAlien.changeColorFieldbyAlien(x, y) == True): # trafienie przez przeciwnika
+                self.counter += 1
+                self.previousFields.append(tuple((x, y)))
 
-                    if (self.counter == boardAlien.getShiplength(x, y)):  # zmiana koloru trafionego statku
-                        for x, y in self.previousFields:
-                            boardAlien.changeColorFieldonGrey(x, y)
-                            self.removeCorners(x, y, table, True)
-                        del self.previousFields[:]
-                        self.counter = 0
+                if(self.counter == boardAlien.getShiplength(x, y)): # zmiana koloru trafionego statku
+                    for x,y in self.previousFields:
+                        boardAlien.changeColorFieldonGrey(x, y)
+                        self.removeCorners(x, y, table, True)
+                    del self.previousFields[:]
+                    self.counter = 0
 
-                        if (boardAlien.getShiplength(x, y) == 1):  # dla pojedynczego statku usuwa pola wkolo niego
-                            self.removeCorners(x, y, table, True)
+                    if(boardAlien.getShiplength(x, y) == 1): #dla pojedynczego statku usuwa pola wkolo niego
+                        self.removeCorners(x, y, table,True)
 
-                        # usuwa z generalnej tabeli to co bylo w tymczasowych tablicach       #list comprehension x2
-                        if (self.temp != 0):
-                            table = [(x, y) for x, y in table if (x, y) not in self.temp]
-                        if (self.temp1 != 0):
-                            table = [(x, y) for x, y in table if (x, y) not in self.temp1]
+                    #usuwa z generalnej tabeli to co bylo w tymczasowych tablicach       #list comprehension x2
+                    if (self.temp != 0):
+                        table = [(x, y) for x, y in table if (x, y) not in self.temp]
+                    if (self.temp1 != 0):
+                        table = [(x, y) for x, y in table if (x, y) not in self.temp1]
 
+                    del self.temp[:]
+                    del self.temp1[:]
+
+                    self.choosed = False
+
+                else:
+                    if (self.choosed == False):   # zapisuje pierwsze wspolrzedne
+                        self.choosed = True
+                        self.rememberX = x
+                        self.rememberY = y
+                    if(self.temp1 != 0):
+                        if (x, y) in self.temp1:
+                            self.temp1.remove((x, y))  #usuwa poprzednie wspolrzedne
+
+                    self.removeCorners(x,y,table,False)  #usuwa pola wkolo statku
+
+                    if(len(self.temp) != 0): #sprawdza czy lista dla kolejnych pol jest pusta, jesli nie to usuwa ja z tej listy oraz generalnej listy
                         del self.temp[:]
-                        del self.temp1[:]
 
-                        self.choosed = False
+                        if(x == self.rememberX):
+                            if (((self.rememberX-1,self.rememberY)) in table):
+                                table.remove((self.rememberX-1,self.rememberY))
+                            if (((self.rememberX+1,self.rememberY)) in table):
+                                table.remove((self.rememberX+1,self.rememberY))
 
-                    else:
-                        if (self.choosed == False):  # zapisuje pierwsze wspolrzedne
-                            self.choosed = True
-                            self.rememberX = x
-                            self.rememberY = y
-                        if (self.temp1 != 0):
-                            if (x, y) in self.temp1:
-                                self.temp1.remove((x, y))  # usuwa poprzednie wspolrzedne
-
-                        self.removeCorners(x, y, table, False)  # usuwa pola wkolo statku
-
-                        if (len(
-                                self.temp) != 0):  # sprawdza czy lista dla kolejnych pol jest pusta, jesli nie to usuwa ja z tej listy oraz generalnej listy
-                            del self.temp[:]
-
-                            if (x == self.rememberX):
-                                if (((self.rememberX - 1, self.rememberY)) in table):
-                                    table.remove((self.rememberX - 1, self.rememberY))
-                                if (((self.rememberX + 1, self.rememberY)) in table):
-                                    table.remove((self.rememberX + 1, self.rememberY))
-
-                            if (y == self.rememberY):
-                                if (((self.rememberX, self.rememberY - 1)) in table):
-                                    table.remove((self.rememberX, self.rememberY - 1))
-                                if (((self.rememberX, self.rememberY + 1)) in table):
-                                    table.remove((self.rememberX, self.rememberY + 1))
-
-                        if (len(self.temp) == 0):  # gdy lista jest pusta
-
-                            if (x, y) in table:
-                                table.remove((x, y))
-                            self.checkOtherSide(x, y, table, self.temp)
+                        if(y == self.rememberY):
+                            if (((self.rememberX,self.rememberY-1)) in table):
+                                table.remove((self.rememberX,self.rememberY-1))
+                            if (((self.rememberX,self.rememberY+1)) in table):
+                                table.remove((self.rememberX,self.rememberY+1))
 
 
-                else:  # pudlo tez dodaje do tabeli
-                    if (x, y) in table:
-                        table.remove((x, y))
-                    if (x, y) in self.temp:
-                        self.temp.remove((x, y))
-                    if (x, y) in self.temp1:
-                        self.temp1.remove((x, y))
+                    if(len(self.temp) == 0):  # gdy lista jest pusta
+
+                        if (x, y) in table:
+                            table.remove((x, y))
+                        self.checkOtherSide(x,y,table, self.temp)
+
+
+            else:                   #pudlo tez dodaje do tabeli
+                if (x, y) in table:
+                    table.remove((x, y))
+                if (x, y) in self.temp:
+                    self.temp.remove((x, y))
+                if (x, y) in self.temp1:
+                    self.temp1.remove((x, y))
+
     def checkOtherSide(self, x,y, table, list): #lambda do sprawdzania pol wkoło statku
         append = lambda x,y : list.append(tuple((x, y))) if ((x, y) in table) else False
 

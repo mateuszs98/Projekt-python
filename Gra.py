@@ -360,3 +360,29 @@ class Alien:  #gracz 2 czyli komputer
                         self.temp.remove((x, y))
                     if (x, y) in self.temp1:
                         self.temp1.remove((x, y))
+    def checkOtherSide(self, x,y, table, list): #lambda do sprawdzania pol wkoło statku
+        append = lambda x,y : list.append(tuple((x, y))) if ((x, y) in table) else False
+
+        append(x-1,y)
+        append(x+1,y)
+        append(x,y+1)
+        append(x,y-1)
+
+    def tableToShoot(self): # list comprehension
+        self.positionToShoot = [tuple((i, j)) for i in range(10) for j in range(10)]
+        return self.positionToShoot
+
+    def removeCorners(self,x,y,table,allCorners): #lambda do usuwania pól
+        remove = lambda x, y: table.remove((x, y)) if (x, y) in table else False
+
+        remove(x,y)
+        remove(x - 1, y - 1)
+        remove(x + 1, y + 1)
+        remove(x - 1, y + 1)
+        remove(x + 1, y - 1)
+
+        if(allCorners == True):
+            remove(x - 1, y)
+            remove(x + 1, y)
+            remove(x, y + 1)
+            remove(x, y - 1)
